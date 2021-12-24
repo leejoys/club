@@ -60,7 +60,7 @@ func (api *API) endpoints() {
 	// //метод получения данных для таблицы
 	// api.r.HandleFunc("/users", api.getData).Methods(http.MethodGet)
 	//метод добавления пользователя
-	api.r.HandleFunc("/user", api.storeUser).Methods(http.MethodGet)
+	api.r.HandleFunc("/", api.storeUser).Methods(http.MethodPost)
 }
 
 // Получение маршрутизатора запросов.
@@ -96,13 +96,13 @@ func (api *API) page(w http.ResponseWriter, r *http.Request) {
 
 // // метод добавления пользователя
 func (api *API) storeUser(w http.ResponseWriter, r *http.Request) {
-	userName := r.URL.Query().Get("name")
+	userName := r.FormValue("name")
 	//todo regex name check
 	if userName == "" {
 		http.Error(w, "wrong name", http.StatusBadRequest)
 		return
 	}
-	userEmail := r.URL.Query().Get("email")
+	userEmail := r.FormValue("email")
 
 	if !isEmailValid(userEmail) {
 		http.Error(w, "wrong email", http.StatusBadRequest)
