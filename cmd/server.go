@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"html/template"
 
 	"club/pkg/api"
 	"club/pkg/storage"
@@ -20,7 +21,7 @@ type server struct {
 
 func main() {
 
-	pageFile, err := os.ReadFile("page.html")
+	t, err := template.ParseFiles("templates/page.html")
 	if err != nil {
 		log.Fatal("page file reading error")
 	}
@@ -38,7 +39,7 @@ func main() {
 	defer srv.db.Close()
 
 	// Создаём объект API и регистрируем обработчики.
-	srv.api = api.New(ctx, srv.db, pageFile)
+	srv.api = api.New(ctx, srv.db, t)
 
 	// Запускаем веб-сервер на порту 8080 на всех интерфейсах.
 	// Предаём серверу маршрутизатор запросов.

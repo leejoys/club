@@ -3,7 +3,6 @@ package memdb
 import (
 	"club/pkg/storage"
 	"context"
-	"errors"
 	"sync"
 )
 
@@ -27,15 +26,15 @@ func New() *Store {
 //Close - освобождение ресурса. Заглушка для реализации интерфейса.
 func (s *Store) Close() {}
 
-//GetUser - получение пользователя по емейлу
-func (s *Store) GetUser(ctx context.Context, email string) (storage.User, error) {
+//Users - получение пользователей
+func (s *Store) Users(ctx context.Context) ([]storage.User, error) {
+	usersList := []storage.User{}
 	s.db.mutex.RLock()
-	user, ok := s.db.dbase[email]
-	s.db.mutex.RUnlock()
-	if !ok {
-		return storage.User{}, errors.New("memdb GetUser error: no data")
+	for _, el := range s.db.dbase {
+		usersList = append(usersList, el)
 	}
-	return user, nil
+	s.db.mutex.RUnlock()
+	return usersList, nil
 }
 
 //StoreUser - сохранение нового пользователя

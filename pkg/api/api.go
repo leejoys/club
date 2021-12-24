@@ -3,10 +3,12 @@ package api
 import (
 	"club/pkg/storage"
 	"context"
+	"html/template"
 	"net"
 	"net/http"
 	"net/mail"
 	"strings"
+	"time"
 
 	"github.com/gorilla/mux"
 )
@@ -33,18 +35,18 @@ func isEmailValid(e string) bool {
 
 // Программный интерфейс сервиса
 type API struct {
-	pageFile []byte
-	db       storage.Interface
-	r        *mux.Router
-	ctx      context.Context
+	t   *template.Template
+	db  storage.Interface
+	r   *mux.Router
+	ctx context.Context
 }
 
 // Конструктор объекта API
-func New(ctx context.Context, db storage.Interface, pageFile []byte) *API {
+func New(ctx context.Context, db storage.Interface, t *template.Template) *API {
 	api := API{
-		db:       db,
-		pageFile: pageFile,
-		ctx:      ctx,
+		db:  db,
+		t:   t,
+		ctx: ctx,
 	}
 	api.r = mux.NewRouter()
 	api.endpoints()
@@ -67,9 +69,24 @@ func (api *API) Router() *mux.Router {
 	return api.r
 }
 
+type resp struct {
+	List []storage.User
+}
+
 //отображение страницы
 func (api *API) page(w http.ResponseWriter, r *http.Request) {
-	w.Write(api.pageFile)
+	var err error
+	re := resp{}
+	re.List, err = api.db.Users(api.ctx)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	err = api.t.Execute(w, re)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 }
 
 // // метод получения данных для таблицы
@@ -80,6 +97,7 @@ func (api *API) page(w http.ResponseWriter, r *http.Request) {
 // // метод добавления пользователя
 func (api *API) storeUser(w http.ResponseWriter, r *http.Request) {
 	userName := r.URL.Query().Get("name")
+	//todo regex name check
 	if userName == "" {
 		http.Error(w, "wrong name", http.StatusBadRequest)
 		return
@@ -101,10 +119,21 @@ func (api *API) storeUser(w http.ResponseWriter, r *http.Request) {
 	}
 	err = api.db.StoreUser(api.ctx,
 		storage.User{Name: userEmail,
-			Email: userEmail})
+			Email: userEmail,
+			Date:  time.Now().UTC().Format(time.UnixDate)})
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	w.Write(api.pageFile)
+	re := resp{}
+	re.List, err = api.db.Users(api.ctx)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	err = api.t.Execute(w, re)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 }
