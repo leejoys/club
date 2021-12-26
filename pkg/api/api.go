@@ -158,7 +158,7 @@ func (api *API) storeUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	//рендерим шаблон с ответом
-	err = api.t.ExecuteTemplate(w, "index", re)
+	err = api.t.ExecuteTemplate(w, "success", re)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
