@@ -33,7 +33,7 @@ func isEmailValid(e string) bool {
 	return true
 }
 
-// Программный интерфейс сервиса
+//API - Программный интерфейс сервиса
 type API struct {
 	t   *template.Template
 	db  storage.Interface
@@ -41,7 +41,7 @@ type API struct {
 	ctx context.Context
 }
 
-// Конструктор объекта API
+//New - Конструктор объекта API
 func New(ctx context.Context, db storage.Interface, t *template.Template) *API {
 	api := API{
 		db:  db,
@@ -61,7 +61,7 @@ func (api *API) endpoints() {
 	api.r.HandleFunc("/", api.storeUser).Methods(http.MethodPost)
 }
 
-// Получение маршрутизатора запросов.
+//Router - Получение маршрутизатора запросов.
 // Требуется для передачи маршрутизатора веб-серверу.
 func (api *API) Router() *mux.Router {
 	return api.r
@@ -93,6 +93,7 @@ func (api *API) page(w http.ResponseWriter, r *http.Request) {
 
 // // метод добавления пользователя
 func (api *API) storeUser(w http.ResponseWriter, r *http.Request) {
+	//получаем имя из тела запроса
 	userName := r.FormValue("name")
 	//todo regex name check
 	if userName == "" {
@@ -103,7 +104,7 @@ func (api *API) storeUser(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
-
+	//получаем адрес из тела запроса
 	userEmail := r.FormValue("email")
 	if !isEmailValid(userEmail) {
 		err := api.t.ExecuteTemplate(w, "error", "wrong email")
@@ -113,7 +114,7 @@ func (api *API) storeUser(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
-
+	//считаем количество пользователей с таким адресом в базе
 	i, err := api.db.CountUser(api.ctx, userEmail)
 	if err != nil {
 		err = api.t.ExecuteTemplate(w, "error", err.Error())
@@ -123,7 +124,7 @@ func (api *API) storeUser(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
-
+	//если пользователей больше нуля - ошибка
 	if i > 0 {
 		err = api.t.ExecuteTemplate(w, "error", "email already in use")
 		if err != nil {
@@ -132,7 +133,7 @@ func (api *API) storeUser(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
-
+	//сохраняем пользователя
 	err = api.db.StoreUser(api.ctx,
 		storage.User{Name: userName,
 			Email: userEmail,
@@ -145,7 +146,7 @@ func (api *API) storeUser(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
-
+	//формируем ответ для отправки в шаблон
 	re := resp{}
 	re.List, err = api.db.Users(api.ctx)
 	if err != nil {
@@ -156,7 +157,7 @@ func (api *API) storeUser(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
-
+	//рендерим шаблон с ответом
 	err = api.t.ExecuteTemplate(w, "index", re)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
