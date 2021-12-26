@@ -18,11 +18,8 @@ func isEmailValid(e string) bool {
 	if len(e) < 3 && len(e) > 254 {
 		return false
 	}
-	valid := func() bool {
-		_, err := mail.ParseAddress(e)
-		return err == nil
-	}
-	if !valid() {
+
+	if _, err := mail.ParseAddress(e); err != nil {
 		return false
 	}
 	parts := strings.Split(e, "@")
