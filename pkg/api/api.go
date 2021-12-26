@@ -77,10 +77,14 @@ func (api *API) page(w http.ResponseWriter, r *http.Request) {
 	re := resp{}
 	re.List, err = api.db.Users(api.ctx)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		err = api.t.ExecuteTemplate(w, "error", err.Error())
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
 		return
 	}
-	err = api.t.Execute(w, re)
+	err = api.t.ExecuteTemplate(w, "index", re)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -92,39 +96,68 @@ func (api *API) storeUser(w http.ResponseWriter, r *http.Request) {
 	userName := r.FormValue("name")
 	//todo regex name check
 	if userName == "" {
-		http.Error(w, "wrong name", http.StatusBadRequest)
+		err := api.t.Execute(w, "wrong name")
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
 		return
 	}
-	userEmail := r.FormValue("email")
 
+	userEmail := r.FormValue("email")
 	if !isEmailValid(userEmail) {
-		http.Error(w, "wrong email", http.StatusBadRequest)
+		err := api.t.ExecuteTemplate(w, "error", "wrong email")
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
 		return
 	}
+
 	i, err := api.db.CountUser(api.ctx, userEmail)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		err = api.t.ExecuteTemplate(w, "error", err.Error())
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
 		return
 	}
+
 	if i > 0 {
-		http.Error(w, "email already in use", http.StatusBadRequest)
+		err = api.t.ExecuteTemplate(w, "error", "email already in use")
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
 		return
 	}
+
 	err = api.db.StoreUser(api.ctx,
-		storage.User{Name: userEmail,
+		storage.User{Name: userName,
 			Email: userEmail,
 			Date:  time.Now().UTC().Format("2006-02-01")})
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		err = api.t.ExecuteTemplate(w, "error", err.Error())
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
 		return
 	}
+
 	re := resp{}
 	re.List, err = api.db.Users(api.ctx)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		err = api.t.ExecuteTemplate(w, "error", err.Error())
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
 		return
 	}
-	err = api.t.Execute(w, re)
+
+	err = api.t.ExecuteTemplate(w, "index", re)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

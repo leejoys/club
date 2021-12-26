@@ -20,10 +20,11 @@ type server struct {
 }
 
 func main() {
-
-	t, err := template.ParseFiles("templates/page.html")
+	// загружаем шаблоны страницы
+	tmpl, err := template.ParseFiles("templates/index.html", "templates/error.html",
+		"templates/header.html", "templates/footer.html")
 	if err != nil {
-		log.Fatal("page file reading error")
+		log.Fatal("template files reading error")
 	}
 
 	//todo gracefull shutdown
@@ -39,7 +40,7 @@ func main() {
 	defer srv.db.Close()
 
 	// Создаём объект API и регистрируем обработчики.
-	srv.api = api.New(ctx, srv.db, t)
+	srv.api = api.New(ctx, srv.db, tmpl)
 
 	// Запускаем веб-сервер на порту 8080 на всех интерфейсах.
 	// Предаём серверу маршрутизатор запросов.

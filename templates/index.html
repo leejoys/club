@@ -1,0 +1,40 @@
+{{define "index"}} {{template "header"}}
+<main class="px-3">
+    <h1>Welcome to the Club</h1>
+    <p class="lead">To join the Club please enter your name and valid email address in form below.</p>
+
+    <form method="POST">
+        <label for="fname">Name:</label><br>
+        <input type="text" id="name" name="name" value="Thomas"><br>
+        <label for="lname">Email:</label><br>
+        <input type="text" id="email" name="email" value="anderson@metacortex.io"><br><br>
+        <input type="submit" value="Submit">
+    </form>
+
+    <h2>Club list</h2>
+
+    <table>
+        <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Date</th>
+        </tr>
+        {{range .List}}
+        <tr>
+            <td>{{.Name}}</td>
+            <td>{{.Email}}</td>
+            <td>{{.Date}}</td>
+        </tr>
+        {{else}}
+        <tr>
+            Club list is empty
+        </tr>
+        {{end}}
+    </table>
+
+
+    <p class="lead">
+        <a href="#" class="btn btn-lg btn-secondary fw-bold border-white bg-white">Learn more</a>
+    </p>
+</main>
+{{template "footer"}} {{end}}
