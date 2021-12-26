@@ -57,8 +57,6 @@ func New(ctx context.Context, db storage.Interface, t *template.Template) *API {
 func (api *API) endpoints() {
 	//метод отображения страницы
 	api.r.HandleFunc("/", api.page).Methods(http.MethodGet)
-	// //метод получения данных для таблицы
-	// api.r.HandleFunc("/users", api.getData).Methods(http.MethodGet)
 	//метод добавления пользователя
 	api.r.HandleFunc("/", api.storeUser).Methods(http.MethodPost)
 }
@@ -89,11 +87,6 @@ func (api *API) page(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// // метод получения данных для таблицы
-// func (api *API) getData(w http.ResponseWriter, r *http.Request) {
-// 	w.Write([]byte())
-// }
-
 // // метод добавления пользователя
 func (api *API) storeUser(w http.ResponseWriter, r *http.Request) {
 	userName := r.FormValue("name")
@@ -120,7 +113,7 @@ func (api *API) storeUser(w http.ResponseWriter, r *http.Request) {
 	err = api.db.StoreUser(api.ctx,
 		storage.User{Name: userEmail,
 			Email: userEmail,
-			Date:  time.Now().UTC().Format(time.UnixDate)})
+			Date:  time.Now().UTC().Format("2006-02-01")})
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
