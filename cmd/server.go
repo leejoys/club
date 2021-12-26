@@ -22,7 +22,8 @@ type server struct {
 func main() {
 	// загружаем шаблоны страницы
 	tmpl, err := template.ParseFiles("templates/index.html", "templates/error.html",
-		"templates/success.html", "templates/header.html", "templates/footer.html")
+		"templates/success.html", "templates/header.html", "templates/footer.html",
+		"templates/about.html", "templates/contacts.html")
 	if err != nil {
 		log.Fatal("template files reading error")
 	}

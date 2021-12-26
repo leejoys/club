@@ -55,8 +55,12 @@ func New(ctx context.Context, db storage.Interface, t *template.Template) *API {
 
 // Регистрация обработчиков API.
 func (api *API) endpoints() {
-	//метод отображения страницы
+	//метод отображения главной страницы
 	api.r.HandleFunc("/", api.page).Methods(http.MethodGet)
+	//метод отображения страницы About
+	api.r.HandleFunc("/about", api.about).Methods(http.MethodGet)
+	//метод отображения страницы контактов
+	api.r.HandleFunc("/contacts", api.contacts).Methods(http.MethodGet)
 	//метод добавления пользователя
 	api.r.HandleFunc("/", api.storeUser).Methods(http.MethodPost)
 }
@@ -71,7 +75,25 @@ type resp struct {
 	List []storage.User
 }
 
-//отображение страницы
+//отображение страницы About
+func (api *API) about(w http.ResponseWriter, r *http.Request) {
+	err := api.t.ExecuteTemplate(w, "about", nil)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+}
+
+//отображение страницы контактов
+func (api *API) contacts(w http.ResponseWriter, r *http.Request) {
+	err := api.t.ExecuteTemplate(w, "contacts", nil)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+}
+
+//отображение главной страницы
 func (api *API) page(w http.ResponseWriter, r *http.Request) {
 	var err error
 	re := resp{}
