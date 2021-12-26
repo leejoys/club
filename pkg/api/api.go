@@ -97,7 +97,7 @@ func (api *API) storeUser(w http.ResponseWriter, r *http.Request) {
 	userName := r.FormValue("name")
 	//todo regex name check
 	if userName == "" {
-		err := api.t.Execute(w, "wrong name")
+		err := api.t.ExecuteTemplate(w, "error", "wrong name")
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
