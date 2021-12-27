@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	valid "github.com/asaskevich/govalidator"
 	"github.com/gorilla/mux"
 )
 
@@ -68,6 +69,7 @@ func (api *API) Router() *mux.Router {
 	return api.r
 }
 
+//структура данных для шаблона
 type resp struct {
 	List []storage.User
 }
@@ -115,7 +117,7 @@ func (api *API) storeUser(w http.ResponseWriter, r *http.Request) {
 	//получаем имя из тела запроса
 	userName := r.FormValue("name")
 	//todo regex name check
-	if userName == "" {
+	if userName == "" || !valid.IsAlphanumeric(userName) {
 		err := api.t.ExecuteTemplate(w, "error", "wrong name")
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
