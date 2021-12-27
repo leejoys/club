@@ -120,7 +120,7 @@ func (api *API) storeUser(w http.ResponseWriter, r *http.Request) {
 	//получаем имя из тела запроса
 	userName := r.FormValue("name")
 	//todo regex name check
-	if userName == "" || !api.rx.MatchString(userName) {
+	if len(userName) > 255 || userName == "" || !api.rx.MatchString(userName) {
 		err := api.t.ExecuteTemplate(w, "error", "wrong name")
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
