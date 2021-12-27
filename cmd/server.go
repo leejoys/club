@@ -45,11 +45,11 @@ func main() {
 	srv.api = api.New(ctx, srv.db, tmpl, regexp.MustCompile(`^[a-zA-Z\s\.]+$`))
 
 	// Запускаем веб-сервер, передаём серверу маршрутизатор запросов.
+	port := os.Getenv("PORT")
 	go func() {
-		port := os.Getenv("PORT")
 		log.Fatal(http.ListenAndServe("0.0.0.0:"+port, srv.api.Router()))
 	}()
-	log.Println("HTTP server is started")
+	log.Printf("HTTP server is started on port %s\n", port)
 	signalCh := make(chan os.Signal, 1)
 	signal.Notify(signalCh, os.Interrupt)
 	<-signalCh
