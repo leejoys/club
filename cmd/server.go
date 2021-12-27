@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"html/template"
+	"regexp"
 
 	"club/pkg/api"
 	"club/pkg/storage"
@@ -41,7 +42,7 @@ func main() {
 	defer srv.db.Close()
 
 	// Создаём объект API и регистрируем обработчики.
-	srv.api = api.New(ctx, srv.db, tmpl)
+	srv.api = api.New(ctx, srv.db, tmpl, regexp.MustCompile(`^[a-zA-Z\s\.]+$`))
 
 	// Запускаем веб-сервер на порту 8080 на всех интерфейсах.
 	// Предаём серверу маршрутизатор запросов.

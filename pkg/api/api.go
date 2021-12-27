@@ -7,10 +7,10 @@ import (
 	"net"
 	"net/http"
 	"net/mail"
+	"regexp"
 	"strings"
 	"time"
 
-	valid "github.com/asaskevich/govalidator"
 	"github.com/gorilla/mux"
 )
 
@@ -33,6 +33,7 @@ func isEmailValid(e string) bool {
 
 //API - Программный интерфейс сервиса
 type API struct {
+	rx  *regexp.Regexp
 	t   *template.Template
 	db  storage.Interface
 	r   *mux.Router
@@ -40,10 +41,12 @@ type API struct {
 }
 
 //New - Конструктор объекта API
-func New(ctx context.Context, db storage.Interface, t *template.Template) *API {
+func New(ctx context.Context, db storage.Interface,
+	t *template.Template, rx *regexp.Regexp) *API {
 	api := API{
 		db:  db,
 		t:   t,
+		rx:  rx,
 		ctx: ctx,
 	}
 	api.r = mux.NewRouter()
@@ -117,7 +120,7 @@ func (api *API) storeUser(w http.ResponseWriter, r *http.Request) {
 	//получаем имя из тела запроса
 	userName := r.FormValue("name")
 	//todo regex name check
-	if userName == "" || !valid.IsAlphanumeric(userName) {
+	if userName == "" || !api.rx.MatchString(userName) {
 		err := api.t.ExecuteTemplate(w, "error", "wrong name")
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
