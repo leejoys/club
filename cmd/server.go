@@ -44,10 +44,10 @@ func main() {
 	// Создаём объект API и регистрируем обработчики.
 	srv.api = api.New(ctx, srv.db, tmpl, regexp.MustCompile(`^[a-zA-Z\s\.]+$`))
 
-	// Запускаем веб-сервер на порту 8080 на всех интерфейсах.
-	// Предаём серверу маршрутизатор запросов.
+	// Запускаем веб-сервер, передаём серверу маршрутизатор запросов.
 	go func() {
-		log.Fatal(http.ListenAndServe("0.0.0.0:8080", srv.api.Router()))
+		port := os.Getenv("PORT")
+		log.Fatal(http.ListenAndServe("0.0.0.0:"+port, srv.api.Router()))
 	}()
 	log.Println("HTTP server is started")
 	signalCh := make(chan os.Signal, 1)
