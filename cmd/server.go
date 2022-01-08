@@ -31,24 +31,28 @@ func main() {
 		log.Fatal("template files reading error")
 	}
 
+	//todo gracefull shutdown
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
 	// Создаём объект базы данных MongoDB.
 	pwd := os.Getenv("Cloud0pass")
 	connstr := fmt.Sprintf(
 		"mongodb+srv://sup:%s@cloud0.wspoq.mongodb.net/clubusers?retryWrites=true&w=majority",
 		pwd)
-	_, err = mongodb.New("clubusers", connstr)
+	db, err := mongodb.New("clubusers", connstr)
 	if err != nil {
 		log.Fatalf("mongo.New error: %s", err)
 	}
 
-	//todo gracefull shutdown
+	// Создаём объект базы данных в памяти
+	_ = memdb.New()
+
 	// Создаём объект сервера
 	srv := server{}
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
 
 	// Инициализируем БД
-	srv.db = memdb.New()
+	srv.db = db
 
 	// Освобождаем ресурс
 	defer srv.db.Close()
