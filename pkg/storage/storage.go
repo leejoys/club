@@ -15,4 +15,5 @@ type Interface interface {
 	CountUser(context.Context, string) (int, error) // проверка наличия пользователя
 	StoreUser(context.Context, User) error          // сохранение нового пользователя
 	Close()                                         // освобождение ресурса
+	DropDB()                                        // очистка базы
 }

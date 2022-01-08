@@ -2,12 +2,14 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"html/template"
 	"regexp"
 
 	"club/pkg/api"
 	"club/pkg/storage"
 	"club/pkg/storage/memdb"
+	"club/pkg/storage/mongodb"
 	"log"
 	"net/http"
 	"os"
@@ -27,6 +29,16 @@ func main() {
 		"templates/about.html", "templates/contacts.html")
 	if err != nil {
 		log.Fatal("template files reading error")
+	}
+
+	// Создаём объект базы данных MongoDB.
+	pwd := os.Getenv("Cloud0pass")
+	connstr := fmt.Sprintf(
+		"mongodb+srv://sup:%s@cloud0.wspoq.mongodb.net/gonews?retryWrites=true&w=majority",
+		pwd)
+	_, err = mongodb.New("gonews", connstr)
+	if err != nil {
+		log.Fatalf("mongo.New error: %s", err)
 	}
 
 	//todo gracefull shutdown
