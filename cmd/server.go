@@ -34,9 +34,9 @@ func main() {
 	// Создаём объект базы данных MongoDB.
 	pwd := os.Getenv("Cloud0pass")
 	connstr := fmt.Sprintf(
-		"mongodb+srv://sup:%s@cloud0.wspoq.mongodb.net/gonews?retryWrites=true&w=majority",
+		"mongodb+srv://sup:%s@cloud0.wspoq.mongodb.net/clubusers?retryWrites=true&w=majority",
 		pwd)
-	_, err = mongodb.New("gonews", connstr)
+	_, err = mongodb.New("clubusers", connstr)
 	if err != nil {
 		log.Fatalf("mongo.New error: %s", err)
 	}
