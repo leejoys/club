@@ -22,7 +22,30 @@ type server struct {
 	api *api.API
 }
 
+func dbFabric(ctx context.Context, inmemory bool) storage.Interface {
+	if inmemory {
+		// Создаём объект базы данных в памяти
+		return memdb.New()
+	}
+	// Создаём объект базы данных MongoDB.
+	pwd := os.Getenv("Cloud0pass")
+	connstr := fmt.Sprintf(
+		"mongodb+srv://sup:%s@cloud0.wspoq.mongodb.net/clubusers?retryWrites=true&w=majority",
+		pwd)
+	db, err := mongodb.New("clubusers", connstr)
+	if err != nil {
+		log.Fatalf("mongo.New error: %s", err)
+	}
+	return db
+}
+
 func main() {
+
+	if len(os.Args) > 1 && os.Args[1] != "-inmemory" {
+		log.Fatal("usage: server [-inmemory]")
+	}
+	isMemdb := len(os.Args) > 1 && os.Args[1] == "-inmemory"
+
 	// загружаем шаблоны страницы
 	tmpl, err := template.ParseFiles("templates/index.html", "templates/error.html",
 		"templates/success.html", "templates/header.html", "templates/footer.html",
@@ -35,24 +58,11 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	// Создаём объект базы данных MongoDB.
-	pwd := os.Getenv("Cloud0pass")
-	connstr := fmt.Sprintf(
-		"mongodb+srv://sup:%s@cloud0.wspoq.mongodb.net/clubusers?retryWrites=true&w=majority",
-		pwd)
-	db, err := mongodb.New("clubusers", connstr)
-	if err != nil {
-		log.Fatalf("mongo.New error: %s", err)
-	}
-
-	// Создаём объект базы данных в памяти
-	_ = memdb.New()
-
 	// Создаём объект сервера
 	srv := server{}
 
 	// Инициализируем БД
-	srv.db = db
+	srv.db = dbFabric(ctx, isMemdb)
 
 	// Освобождаем ресурс
 	defer srv.db.Close()
