@@ -26,6 +26,12 @@ func New() *Store {
 //Close - освобождение ресурса. Заглушка для реализации интерфейса.
 func (s *Store) Close() {}
 
+//DropDB - очистка базы.
+func (s *Store) DropDB() error {
+	s.db.dbase = make(map[string]storage.User)
+	return nil
+}
+
 //Users - получение пользователей
 func (s *Store) Users(ctx context.Context) ([]storage.User, error) {
 	usersList := []storage.User{}
