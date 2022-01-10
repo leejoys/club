@@ -1,3 +1,6 @@
+Web-application on Golang for make simple list  
+of club users with inmemory and Mongo Atlas DB 
+
 Для запуска выполнить  
 go build .\cmd\server.go для Windows  
 или go build ./cmd/server.go для Linux  
